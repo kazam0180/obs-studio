@@ -380,6 +380,63 @@ jobs:
           artifact: repo
           path: repo
 
+  appimage-build:
+    name: AnyLinux AppImage 📦
+    runs-on: ${{ matrix.os }}
+    needs: check-event
+    if: ${{ fromJSON(needs.check-event.outputs.package) || github.event_name == 'workflow_dispatch' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-26.04
+            arch: x86_64
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: ghcr.io/pkgforge-dev/archlinux:latest
+    env:
+      TWITCH_CLIENTID: ${{ secrets.TWITCH_CLIENT_ID }}
+      TWITCH_HASH: ${{ secrets.TWITCH_HASH }}
+      RESTREAM_CLIENTID: ${{ secrets.RESTREAM_CLIENTID }}
+      RESTREAM_HASH: ${{ secrets.RESTREAM_HASH }}
+      YOUTUBE_CLIENTID: ${{ secrets.YOUTUBE_CLIENTID }}
+      YOUTUBE_CLIENTID_HASH: ${{ secrets.YOUTUBE_CLIENTID_HASH }}
+      YOUTUBE_SECRET: ${{ secrets.YOUTUBE_SECRET }}
+      YOUTUBE_SECRET_HASH: ${{ secrets.YOUTUBE_SECRET_HASH }}
+    steps:
+      - name: Preparing Container 🛠️
+        uses: pkgforge-dev/anylinux-setup-action@0964f2258d6c93d1391359978dde081fd8b3c6af # v2
+
+      - name: Install Zsh 🐚
+        run: pacman -Syu --noconfirm zsh
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          set-safe-directory: ${{ env.GITHUB_WORKSPACE }}
+
+      - name: Configure Git Safe Directory 🔧
+        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      - name: Install Dependencies 🧰
+        shell: zsh --no-rcs --errexit --pipefail {0}
+        run: ./.github/scripts/.appimage-deps.zsh
+
+      - name: Make AppImage 📦
+        shell: zsh --no-rcs --errexit --pipefail {0}
+        run: ./.github/scripts/.build-appimage.zsh
+
+      - name: Upload Artifacts 📡
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: obs-studio-appimage-${{ matrix.arch }}-${{ needs.check-event.outputs.commitHash }}
+          path: dist
+
   windows-build:
     name: Windows 🪟
     strategy:

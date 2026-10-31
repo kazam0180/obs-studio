@@ -197,6 +197,8 @@ jobs:
           ubuntu_2604_x86_64_artifact_name="obs-studio-ubuntu-26.04-x86_64-${commit_hash}"
           ubuntu_2604_x86_64_debug_name="obs-studio-ubuntu-26.04-x86_64-${commit_hash}-dbgsym"
           ubuntu_2604_sources_name="obs-studio-ubuntu-26.04-sources-${commit_hash}"
+          appimage_x86_64_artifact_name="obs-studio-appimage-x86_64-${commit_hash}"
+          appimage_aarch64_artifact_name="obs-studio-appimage-aarch64-${commit_hash}"
           windows_x64_artifact_name="obs-studio-windows-x64-${{ steps.check.outputs.version }}-signed"
           windows_x64_installer_name="obs-studio-windows-x64-${{ steps.check.outputs.version }}-installer"
           windows_x64_debug_name="obs-studio-windows-x64-${{ steps.check.outputs.version }}-pdbs"
@@ -216,6 +218,14 @@ jobs:
             "${root_dir}"/OBS-Studio-${{ steps.check.outputs.version }}-Ubuntu-26.04-x86_64.deb
           mv -v "${ubuntu_2604_x86_64_debug_name}/"obs-studio-*-x86_64-ubuntu-gnu-dbgsym.ddeb \
             "${root_dir}"/OBS-Studio-${{ steps.check.outputs.version }}-Ubuntu-26.04-x86_64-dbsym.ddeb
+          mv -v "${appimage_x86_64_artifact_name}/"*.AppImage \
+            "${root_dir}"/OBS-Studio-${{ steps.check.outputs.version }}-AnyLinux-x86_64.AppImage
+          mv -v "${appimage_x86_64_artifact_name}/"*.AppImage.zsync \
+            "${root_dir}"/OBS-Studio-${{ steps.check.outputs.version }}-AnyLinux-x86_64.AppImage.zsync
+          mv -v "${appimage_aarch64_artifact_name}/"*.AppImage \
+            "${root_dir}"/OBS-Studio-${{ steps.check.outputs.version }}-AnyLinux-aarch64.AppImage
+          mv -v "${appimage_aarch64_artifact_name}/"*.AppImage.zsync \
+            "${root_dir}"/OBS-Studio-${{ steps.check.outputs.version }}-AnyLinux-aarch64.AppImage.zsync
           mv -v "${ubuntu_2604_sources_name}/"obs-studio-*-sources.tar.gz \
             "${root_dir}"/OBS-Studio-${{ steps.check.outputs.version }}-Sources.tar.gz
           mv -v "${windows_x64_artifact_name}/"OBS-Studio-*.zip \
@@ -238,7 +248,7 @@ jobs:
           shopt -s extglob
 
           echo "### Checksums" > ${{ github.workspace }}/CHECKSUMS.txt
-          for file in ${{ github.workspace }}/@(*.deb|*.ddeb|*.dmg|*.tar.xz|*.tar.gz|*.exe|*.zip); do
+          for file in ${{ github.workspace }}/@(*.deb|*.ddeb|*.dmg|*.tar.xz|*.tar.gz|*.exe|*.zip|*.AppImage|*.AppImage.zsync); do
             echo "    ${file##*/}: $(sha256sum "${file}" | cut -d " " -f 1)" >> ${{ github.workspace }}/CHECKSUMS.txt
           done
 
@@ -256,6 +266,10 @@ jobs:
             ${{ github.workspace }}/OBS-Studio-${{ steps.check.outputs.version }}-macOS-*.dmg
             ${{ github.workspace }}/OBS-Studio-${{ steps.check.outputs.version }}-macOS-*-dSYMs.tar.xz
             ${{ github.workspace }}/OBS-Studio-${{ steps.check.outputs.version }}-Ubuntu-*.deb
+            ${{ github.workspace }}/OBS-Studio-${{ steps.check.outputs.version }}-AnyLinux-x86_64.AppImage
+            ${{ github.workspace }}/OBS-Studio-${{ steps.check.outputs.version }}-AnyLinux-x86_64.AppImage.zsync
+            ${{ github.workspace }}/OBS-Studio-${{ steps.check.outputs.version }}-AnyLinux-aarch64.AppImage
+            ${{ github.workspace }}/OBS-Studio-${{ steps.check.outputs.version }}-AnyLinux-aarch64.AppImage.zsync
             ${{ github.workspace }}/OBS-Studio-${{ steps.check.outputs.version }}-Ubuntu-*.ddeb
             ${{ github.workspace }}/OBS-Studio-${{ steps.check.outputs.version }}-Sources.tar.gz
             ${{ github.workspace }}/OBS-Studio-${{ steps.check.outputs.version }}-Windows-x64.zip

@@ -1,6 +1,8 @@
 name: Build Project
 on:
   workflow_call:
+  # TEMP
+  workflow_dispatch: {}
 jobs:
   check-event:
     name: Event Data 🔎
@@ -61,6 +63,7 @@ jobs:
     name: macOS 🍏
     runs-on: macos-26
     needs: check-event
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -185,6 +188,7 @@ jobs:
         os: [ubuntu-26.04]
     runs-on: ${{ matrix.os }}
     needs: check-event
+    if: false
     defaults:
       run:
         shell: bash
@@ -256,6 +260,7 @@ jobs:
     name: Flatpak 📦
     runs-on: ubuntu-26.04
     needs: check-event
+    if: false
     defaults:
       run:
         shell: bash
@@ -443,6 +448,7 @@ jobs:
       matrix:
         architecture: [x64, arm64]
     runs-on: windows-2025-vs2026
+    if: false
     needs: check-event
     defaults:
       run:
